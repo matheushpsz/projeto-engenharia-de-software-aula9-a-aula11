@@ -14,11 +14,12 @@ Route::get('/user', function (Request $request) {
 //------------------------------------------------------------------
 // rota do tipo post resposavel por criar um novo produto
 Route::post('/products', function (Request $request) {
-    $product = new product(); // cria uma nova instância do modelo Product
+    $product = new Product(); // cria uma nova instância do modelo Product
 
     $product->name = $request->input('name'); // define o nome do produto
     $product->price = $request->input('price'); // define o preço do produto
     $product->description = $request->input('description'); // define a descrição do produto
+    $product->category_id = $request->input('category_id'); // <-- Adicione esta linha
     $product->save(); // salva o produto no banco de dados
     
     return response()->json([
