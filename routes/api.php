@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Models\Product;//importa o do model Product para usar nas rotas
 use App\Models\Category; // importa o model Category para usar nas rotas
+use App\Models\Company; // importa o model Company para usar nas rotas
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -131,3 +132,50 @@ Route::delete('/categories/{id}', function ($id) {
     $category->delete(); // deleta a categoria do banco de dados
     return response()->json(['message' => 'Categoria deletada com sucesso']); // retorna mensagem de sucesso
 });
+//-------------------------------------------------
+/*
+Crie uma API para Gerenciar Empresas
+ ● Uma empresa deve conter Razão Social, Nome Fantasia e CNPJ
+ ● Deve ser possível:
+    ○ Criar
+    ○ Buscar uma empresa pelo Id
+    ○ Listar todas
+    ○ Apagar uma empresa
+*/
+//rota para criar uma nova empresa
+Route::post('/companies', function (Request $request) {
+    $company = new Company(); 
+
+    $company->legal_name = $request->input('legal_name'); 
+    $company->fantasy_name = $request->input('fantasy_name');
+    $company->cnpj = $request->input('cnpj'); 
+    $company->save(); 
+    
+    return response()->json([
+        'message' => 'Empresa criada com sucesso!',
+        'company' => $company
+    ], 201); 
+});
+//buscar uma empresa específica pelo ID
+Route::get('/companies/{id}', function ($id) {
+    $company = Company::find($id); 
+    if (!$company) {
+        return response()->json(['message' => 'Empresa não encontrada'], 404); 
+    }
+    return response()->json($company); // retorna a empresa em formato JSON
+});
+//rota para listar todas as empresas
+Route::get('/companies', function () {
+    $companies = Company::all(); 
+    return response()->json($companies); 
+});
+//rota para deletar uma empresa pelo ID
+Route::delete('/companies/{id}', function ($id) {
+    $company = Company::find($id); 
+    if (!$company) {
+        return response()->json(['message' => 'Empresa não encontrada'], 404); 
+    }
+    $company->delete(); 
+    return response()->json(['message' => 'Empresa deletada com sucesso']); 
+});
+//--------------------------------------------------
