@@ -180,3 +180,5 @@ Route::delete('/companies/{id}', function ($id) {
     return response()->json(['message' => 'Empresa deletada com sucesso']); 
 });
 //--------------------------------------------------
+//atividade aula 10 slide  11
+
