@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Product;//importa o do model Product para usar nas rotas
 use App\Models\Category; // importa o model Category para usar nas rotas
 use App\Models\Company; // importa o model Company para usar nas rotas
+use App\Models\Person; // importa o model Person para usar nas rotas
+use App\Models\BirthCertificate; // importa o model BirthCertificate para usar nas rotas
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -181,4 +183,69 @@ Route::delete('/companies/{id}', function ($id) {
 });
 //--------------------------------------------------
 //atividade aula 10 slide  11
+//Rota para criar uma nova pessoa
+Route::post('/people', function (Request $request) {
+    $person = new Person(); 
 
+    $person->cpf = $request->input('cpf'); 
+    $person->name = $request->input('name'); 
+    $person->rg = $request->input('rg'); 
+    $person->birth_date = $request->input('birth_date'); 
+    $person->save(); 
+    
+    return response()->json([
+        'message' => 'Pessoa criada com sucesso!',
+        'person' => $person
+    ], 201); 
+});
+//Rota para criar certidão de nascimento
+Route::post('/birth-certificates', function (Request $request) {
+    $birthCertificate = new BirthCertificate(); 
+
+    $birthCertificate->registration_number = $request->input('registration_number'); 
+    $birthCertificate->issue_date = $request->input('issue_date'); 
+    $birthCertificate->place_of_birth = $request->input('place_of_birth'); 
+    $birthCertificate->person_id = $request->input('person_id'); // define a pessoa associada à certidão
+    $birthCertificate->save(); 
+    
+    return response()->json([
+        'message' => 'Certidão de nascimento criada com sucesso!',
+        'birth_certificate' => $birthCertificate
+    ], 201); 
+});
+//Rota para listar todas as pessoas
+Route::get('/people', function () {
+    $people = Person::all(); // busca todas as pessoas no banco de dados
+    return response()->json($people); // retorna as pessoas em formato JSON
+});
+//Rota para listar todas as certidões de nascimento
+Route::get('/birth-certificates', function () {
+    $birthCertificates = BirthCertificate::all(); // busca todas as certidões de nascimento no banco de dados
+    return response()->json($birthCertificates); // retorna as certidões em formato JSON
+});
+//Rota para buscar uma pessoa específica pelo ID
+Route::get('/people/{id}', function ($id) {
+    $person = Person::find($id); // busca a pessoa pelo ID
+    if (!$person) {
+        return response()->json(['message' => 'Pessoa não encontrada'], 404); // retorna erro 404 se não encontrar
+    }
+    return response()->json($person); // retorna a pessoa em formato JSON
+});
+//Rota para buscar uma certidão de nascimento específica pelo ID
+Route::get('/birth-certificates/{id}', function ($id) {
+    $birthCertificate = BirthCertificate::find($id); // busca a certidão de nascimento pelo ID
+    if (!$birthCertificate) {
+        return response()->json(['message' => 'Certidão de nascimento não encontrada'], 404); // retorna erro 404 se não encontrar
+    }
+    return response()->json($birthCertificate); // retorna a certidão em formato JSON
+});
+
+//deletar pessoa pelo ID
+Route::delete('/people/{id}', function ($id) {
+    $person = Person::find($id); // busca a pessoa pelo ID
+    if (!$person) {
+        return response()->json(['message' => 'Pessoa não encontrada'], 404); // retorna erro 404 se não encontrar
+    }
+    $person->delete(); // deleta a pessoa do banco de dados
+    return response()->json(['message' => 'Pessoa deletada com sucesso']); // retorna mensagem de sucesso
+});
