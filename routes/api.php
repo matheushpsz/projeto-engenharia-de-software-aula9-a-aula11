@@ -11,6 +11,7 @@ use App\Models\BirthCertificate; // importa o model BirthCertificate para usar n
 use App\MOdels\CreditCard;
 use App\Models\Movie; // importa o model Movie para usar nas rotas
 use App\Models\Genre;
+use App\Http\Controllers\ProductController; // importa o ProductController para usar nas rotas
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,7 +19,7 @@ Route::get('/user', function (Request $request) {
 
 //------------------------------------------------------------------
 // rota do tipo post resposavel por criar um novo produto
-Route::post('/products', function (Request $request) {
+/*Route::post('/products', function (Request $request) {
     $product = new Product(); // cria uma nova instância do modelo Product
 
     $product->name = $request->input('name'); // define o nome do produto
@@ -39,7 +40,7 @@ Route::post('/products', function (Request $request) {
         'message' => 'Produto criado com sucesso!',
         'product' => $product
     ], 201); // retorna mensagem de sucesso e o produto criado
-});
+});*/
 /*
  utilizando postman para validar o endpoint:
     1 - ligue o servidor com o comando: php artisan serve no terminal
@@ -66,23 +67,33 @@ Route::post('/categories', function (Request $request) {
     ], 201); 
 });
 //rota para listar todos os produtos
+/*
 Route::get('/products', function () {
     $products = Product::all(); // busca todos os produtos no banco de dados
     return response()->json($products); // retorna os produtos em formato JSON
 });
+*/ 
+//TROCAMOS A ROTA ACIMA PELA DE BAIXO
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/products', 'get'); // rota para listar todos os produtos
+    Route::get('/products/{id}', 'details'); // rota para buscar um produto específico pelo ID
+    Route::post('/products', 'store'); // rota para criar um novo produto
+});
+
 //rota para listar todas as categorias
 Route::get('/categories', function () {
     $categories = Category::all(); 
     return response()->json($categories); 
 });
+
 //rota para buscar um produto específico pelo ID
-Route::get('/products/{id}', function ($id) {
+/*Route::get('/products/{id}', function ($id) {
     $product = Product::find($id); // busca o produto pelo ID
     if (!$product) {
         return response()->json(['message' => 'Produto não encontrado'], 404); // retorna erro 404 se não encontrar
     }
     return response()->json($product); // retorna o produto em formato JSON
-});
+});*/
 //rota para buscar uma categoria específica pelo ID
 Route::get('/categories/{id}', function ($id) {
     $category = Category::find($id); // busca a categoria pelo ID
