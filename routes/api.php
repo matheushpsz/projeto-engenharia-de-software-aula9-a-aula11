@@ -9,6 +9,8 @@ use App\Models\Company; // importa o model Company para usar nas rotas
 use App\Models\Person; // importa o model Person para usar nas rotas
 use App\Models\BirthCertificate; // importa o model BirthCertificate para usar nas rotas
 use App\MOdels\CreditCard;
+use App\Models\Movie; // importa o model Movie para usar nas rotas
+use App\Models\Genre;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -21,8 +23,16 @@ Route::post('/products', function (Request $request) {
 
     $product->name = $request->input('name'); // define o nome do produto
     $product->price = $request->input('price'); // define o preço do produto
+
     $product->description = $request->input('description'); // define a descrição do produto
     $product->category_id = $request->input('category_id'); // <-- Adicione esta linha
+
+    $category_id = $request->input('category_id');
+    $category = Category::find($category_id);
+
+    $category = Category::find($category_id); // busca a categoria pelo ID
+    $product->category()->associate($category); // associa a categoria ao produto
+
     $product->save(); // salva o produto no banco de dados
     
     return response()->json([
@@ -269,3 +279,59 @@ Route::post('/credit-cards', function (Request $request) {
         'credit_card' => $creditCard
     ], 201); 
 });
+//------------------------------------------------------------
+//atividade slide 19 filme e genero N:M
+// Rota para criar um genre
+Route::post('/genres', function (Request $request) {
+    $genre = new Genre(); 
+
+    $genre->name = $request->input('name'); 
+    $genre->save(); 
+    
+    return response()->json([
+        'message' => 'Gênero criado com sucesso!',
+        'genre' => $genre
+    ], 201); 
+});
+// Rota para criar um filme
+Route::post('/movies', function (Request $request) {
+    $movie = new Movie(); 
+
+    $movie->title = $request->input('title'); 
+    $movie->year = $request->input('year'); 
+    $movie->duration = $request->input('duration'); 
+    $movie->save(); 
+    
+    // Associar gêneros ao filme
+    if ($request->has('genres')) {
+        $genres = Genre::find($request->input('genres'));
+        $movie->genres()->attach($genres);
+    }
+    
+    return response()->json([
+        'message' => 'Filme criado com sucesso!',
+        'movie' => $movie
+    ], 201); 
+});
+
+//rota para listar todos os filmes de um genero
+Route::get('/genres/{id}/movies', function ($id) {
+    $genre = Genre::find($id); // busca o gênero pelo ID
+    if (!$genre) {
+        return response()->json(['message' => 'Gênero não encontrado'], 404); // retorna erro 404 se não encontrar
+    }
+    $movies = $genre->movies; // obtém os filmes associados ao gênero
+    return response()->json($movies); // retorna os filmes em formato JSON
+});
+
+//----------------------------------------------
+Route::get('/products/category/{id}', function ($id) {
+   $product = Product::find($id);
+   $category = $product->category;
+   return response()->json($category);
+ });
+
+ Route::get('/products/category', function ($id) {
+   $products = Product::with('category')->get();
+   return response()->json($products);
+ });
