@@ -8,6 +8,7 @@ use App\Models\Category; // importa o model Category para usar nas rotas
 use App\Models\Company; // importa o model Company para usar nas rotas
 use App\Models\Person; // importa o model Person para usar nas rotas
 use App\Models\BirthCertificate; // importa o model BirthCertificate para usar nas rotas
+use App\MOdels\CreditCard;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -248,4 +249,23 @@ Route::delete('/people/{id}', function ($id) {
     }
     $person->delete(); // deleta a pessoa do banco de dados
     return response()->json(['message' => 'Pessoa deletada com sucesso']); // retorna mensagem de sucesso
+});
+
+//--------------------------------------------------
+// Atividade slide 15 pessoa e cartão de crédito
+
+// Rota para criar um novo cartão de crédito
+Route::post('/credit-cards', function (Request $request) {
+    $creditCard = new CreditCard(); 
+
+    $creditCard->card_number = $request->input('card_number'); 
+    $creditCard->expiration_date = $request->input('expiration_date'); 
+    $creditCard->cvv = $request->input('cvv'); 
+    $creditCard->person_id = $request->input('person_id'); // define a pessoa associada ao cartão
+    $creditCard->save(); 
+    
+    return response()->json([
+        'message' => 'Cartão de crédito criado com sucesso!',
+        'credit_card' => $creditCard
+    ], 201); 
 });
